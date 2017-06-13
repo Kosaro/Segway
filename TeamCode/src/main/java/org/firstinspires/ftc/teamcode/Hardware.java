@@ -13,6 +13,9 @@ import com.qualcomm.robotcore.robocol.RobocolDatagramSocket;
  */
 
 public class Hardware {
+
+    //Hello there testing
+
     //Configuration names
     final static String LEFT_MOTOR = "lm";
     final static String RIGHT_MOTOR = "rm";
@@ -66,5 +69,9 @@ public class Hardware {
     void setMotorRunMode(DcMotor.RunMode runMode){
         setLeftMotorRunMode(runMode);
         setRightMotorRunMode(runMode);
+    }
+
+    void balance(){
+
     }
 }
