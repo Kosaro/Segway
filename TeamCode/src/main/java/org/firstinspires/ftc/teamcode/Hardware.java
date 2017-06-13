@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cGyro;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.GyroSensor;
@@ -13,8 +14,6 @@ import com.qualcomm.robotcore.robocol.RobocolDatagramSocket;
  */
 
 public class Hardware {
-
-    //Hello there testing
 
     //Configuration names
     final static String LEFT_MOTOR = "lm";
@@ -30,7 +29,7 @@ public class Hardware {
 
     DcMotor leftMotor;
     DcMotor rightMotor;
-    GyroSensor gyro;
+    ModernRoboticsI2cGyro gyro;
     UltrasonicSensor frontUltrasonic;
     UltrasonicSensor rearUltrasonic;
 
@@ -41,7 +40,7 @@ public class Hardware {
     private void initialize(HardwareMap hardwareMap) {
         leftMotor = hardwareMap.dcMotor.get(LEFT_MOTOR);
         rightMotor = hardwareMap.dcMotor.get(RIGHT_MOTOR);
-        gyro = hardwareMap.gyroSensor.get(GYRO);
+        gyro = hardwareMap.get(ModernRoboticsI2cGyro.class, "gyro");
         frontUltrasonic = hardwareMap.ultrasonicSensor.get(FRONT_ULTRASONIC);
         rearUltrasonic = hardwareMap.ultrasonicSensor.get(REAR_ULTRASONIC);
 
@@ -72,6 +71,8 @@ public class Hardware {
     }
 
     void balance(){
+     //   power = ((getheading * speed) / ratioWheel + encoder + speed)
 
     }
+}
 }
