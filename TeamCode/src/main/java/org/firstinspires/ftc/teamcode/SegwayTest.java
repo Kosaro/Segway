@@ -62,7 +62,7 @@ public class SegwayTest extends LinearOpMode {
     double gAngleGlobal;
 
     double motorPos = 0;
-    long mrcSum = 0, mrcSumPrev;
+    long mrcSum = 0, mrcSumPrev; 
     long motorDiff;
     long mrcDeltaP3 = 0;
     long mrcDeltaP2 = 0;
