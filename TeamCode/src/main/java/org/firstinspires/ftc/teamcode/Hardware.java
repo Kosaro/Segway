@@ -13,8 +13,12 @@ import com.qualcomm.robotcore.robocol.RobocolDatagramSocket;
  */
 
 public class Hardware {
+    //Hardware Constants
+    final static double ENCODER_TICKS_PER_REVOLUTION = 1120;
+    final static double ROBOT_HEIGHT = 24.0;   //inches
+    final static double WHEEL_DIAMETER = 4.0;  //inches
+    final static double WHEEL_CIRCUMFERENCE = WHEEL_DIAMETER * Math.PI;
 
-    //Hello there testing
 
     //Configuration names
     final static String LEFT_MOTOR = "lm";
@@ -40,38 +44,42 @@ public class Hardware {
 
     private void initialize(HardwareMap hardwareMap) {
         leftMotor = hardwareMap.dcMotor.get(LEFT_MOTOR);
-        rightMotor = hardwareMap.dcMotor.get(RIGHT_MOTOR);
-        gyro = hardwareMap.gyroSensor.get(GYRO);
-        frontUltrasonic = hardwareMap.ultrasonicSensor.get(FRONT_ULTRASONIC);
-        rearUltrasonic = hardwareMap.ultrasonicSensor.get(REAR_ULTRASONIC);
+        //rightMotor = hardwareMap.dcMotor.get(RIGHT_MOTOR);
+        //gyro = hardwareMap.gyroSensor.get(GYRO);
+        //frontUltrasonic = hardwareMap.ultrasonicSensor.get(FRONT_ULTRASONIC);
+        //rearUltrasonic = hardwareMap.ultrasonicSensor.get(REAR_ULTRASONIC);
 
-        leftMotor.setDirection(LEFT_MOTOR_DIRECTION);
-        leftMotor.setDirection(RIGHT_MOTOR_DIRECTION);
+        //leftMotor.setDirection(LEFT_MOTOR_DIRECTION);
+        //leftMotor.setDirection(RIGHT_MOTOR_DIRECTION);
     }
 
 
-    void resetEncoders(){
+    void resetEncoders() {
         DcMotor.RunMode leftRunMode = leftMotor.getMode();
-        DcMotor.RunMode rightRunMode = rightMotor.getMode();
+        //DcMotor.RunMode rightRunMode = rightMotor.getMode();
         setMotorRunMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        setRightMotorRunMode(rightRunMode);
+        //setRightMotorRunMode(rightRunMode);
         setLeftMotorRunMode(leftRunMode);
     }
 
-    private void setLeftMotorRunMode(DcMotor.RunMode runMode){
+    private void setLeftMotorRunMode(DcMotor.RunMode runMode) {
         leftMotor.setMode(runMode);
     }
 
-    private void setRightMotorRunMode(DcMotor.RunMode runMode){
-        rightMotor.setMode(runMode);
+    private void setRightMotorRunMode(DcMotor.RunMode runMode) {
+        //rightMotor.setMode(runMode);
     }
 
-    void setMotorRunMode(DcMotor.RunMode runMode){
+    void setMotorRunMode(DcMotor.RunMode runMode) {
         setLeftMotorRunMode(runMode);
-        setRightMotorRunMode(runMode);
+       // setRightMotorRunMode(runMode);
     }
 
-    void balance(){
-
+    double balance(double angularVelocity) {
+        if (gyro.getHeading() == 0)
+            return 0;
+        double speed = 24 * angularVelocity / Math.cos(gyro.getHeading());
+        double revolutionPerSecond = speed / WHEEL_CIRCUMFERENCE;
+        return revolutionPerSecond;
     }
 }
