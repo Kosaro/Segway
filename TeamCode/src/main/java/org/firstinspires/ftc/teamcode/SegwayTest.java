@@ -18,9 +18,9 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
  * Created by 516 on 6/13/2017.
  */
 
-@TeleOp(name = "Segway")
+@TeleOp(name = "SegwayTest")
 //@Disabled
-public class SegwayTest extends LinearOpMode{
+public class SegwayTest extends LinearOpMode {
     Hardware robot;
 
     //constants relative to wheel size
@@ -35,6 +35,8 @@ public class SegwayTest extends LinearOpMode{
 
     double emaOffset = 0.0005;
     double timeFallLimit = 1000;
+
+    long nPgmTime = 0;
 //==========================================================================
     //Global Variables
 
@@ -54,7 +56,7 @@ public class SegwayTest extends LinearOpMode{
 
     // relative wheel size compared to standard 1" wheel
     // (2" wheel has 0.7 ratio)
-    double ratioWheel;
+    double ratioWheel = 8.0;
 
     double gOffset;
     double gAngleGlobal;
@@ -73,26 +75,120 @@ public class SegwayTest extends LinearOpMode{
         robot.resetEncoders();
         robot.gyro.calibrate();
         double calibrationStartTime = getRuntime();
-        while (robot.gyro.isCalibrating() && opModeIsActive()){
+        while (robot.gyro.isCalibrating() && opModeIsActive()) {
             telemetry.addData("Gyro calibrating", String.format("%1.2f", getRuntime() - calibrationStartTime));
             telemetry.update();
             idle();
         }
+        balance();
 //===========================================================================
+    }
 
+    public void getGyroData(double gyroSpeed, double gyroAngle) {
         int heading = robot.gyro.getHeading();
 
         AngularVelocity rates = robot.gyro.getAngularVelocity(AngleUnit.DEGREES);
         float zAngle = robot.gyro.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
         int zAxisOffset = robot.gyro.getZAxisOffset();
 
-        double gOffset = emaOffset * heading + (1-emaOffset) * zAxisOffset;
-        double gyroSpeed = heading - gOffset;
+        double gOffset = emaOffset * heading + (1 - emaOffset) * zAxisOffset;
+        gyroSpeed = heading - gOffset;
 
-        gAngleGlobal += gyroSpeed*tInterval;
+        gAngleGlobal += gyroSpeed * tInterval;
+    }
 
-//===========================================================================
+    //===========================================================================
+    public void getMotorData(double motorSpeed, double motorPos) {
+        long mrcLeft, mrcRight, mrcDelta;
 
+        // Keep track of motor position and speed
+        mrcLeft = robot.leftMotor.getCurrentPosition();
+        mrcRight = robot.rightMotor.getCurrentPosition();
 
+        // new mrcSum and Diff values
+        mrcSumPrev = mrcSum;
+        mrcSum = mrcLeft + mrcRight;
+        motorDiff = mrcLeft - mrcRight;
+
+        // mrcDetla is the change int sum of the motor encoders, update
+        // motorPos based on this detla
+        mrcDelta = mrcSum - mrcSumPrev;
+        motorPos += mrcDelta;
+
+        // motorSpeed is based on the average of the last four delta's.
+        motorSpeed = (mrcDelta + mrcDeltaP1 + mrcDeltaP2 + mrcDeltaP3) / (4 * tInterval);
+
+        // Shift the latest mrcDelta into the previous three saved delta values
+        mrcDeltaP3 = mrcDeltaP2;
+        mrcDeltaP2 = mrcDeltaP1;
+        mrcDeltaP1 = mrcDelta;
+    }
+//=====================================================================================
+
+    // Calculate the interval time from one iteration of the loop to the next.
+    public void calcInterval(long cLoop) {
+        if (cLoop == 0) {
+            // First time through, set an initial tInterval time and
+            // record start time
+            tInterval = 0.0055;
+            tCalcStart = nPgmTime;
+        } else {
+            // Take average of number of times through the loop and
+            // use for interval time.
+            tInterval = (nPgmTime - tCalcStart) / (cLoop * 1000.0);
+        }
+    }
+
+    //=====================================================================================
+    public void steerControl(double power, double powerLeft, double powerRight) {
+        double powerSteer;
+
+        motorDiffTarget += motorControlSteer * tInterval;
+
+        powerSteer = kSteer * (motorDiffTarget - motorDiff);
+        powerLeft = power + powerSteer;
+        powerRight = power - powerSteer;
+
+        if (powerLeft > 100) powerLeft = 100;
+        if (powerLeft < -100) powerLeft = -100;
+
+        if (powerRight > 100) powerRight = 100;
+        if (powerRight < -100) powerRight = -100;
+    }
+//====================================================================================
+
+    public void balance() {
+        robot.resetEncoders();
+
+        double gyroSpeed = 0.0;
+        double gyroAngle = 0.0;
+        double motorSpeed = 0.0;
+        double power = 0.0;
+        double powerLeft = 0.0;
+        double powerRight = 0.0;
+        long tMotorPosOK;
+        long cLoop = 0;
+
+        tMotorPosOK = nPgmTime;
+
+        calcInterval(cLoop++);
+        getGyroData(gyroSpeed, gyroAngle);
+        getMotorData(motorSpeed, motorPos);
+        motorPos -= motorControlDrive * tInterval;
+
+        power = (kGyroSpeed * gyroSpeed + kGyroAngle * gyroAngle) / ratioWheel
+                + kPos * motorPos + kDrive * motorControlDrive + kSpeed * motorSpeed;
+        if (Math.abs(power) < 100)
+            tMotorPosOK = nPgmTime;
+        steerControl(power, powerLeft, powerRight);
+        robot.leftMotor.setPower(powerLeft);
+        robot.rightMotor.setPower(powerRight);
+
+        if ((nPgmTime - tMotorPosOK) > timeFallLimit) {
+        }
+
+        sleep(2000);
+
+        robot.stop();
     }
 }

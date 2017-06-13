@@ -49,7 +49,7 @@ public class Hardware {
     }
 
 
-    void resetEncoders(){
+    public void resetEncoders(){
         DcMotor.RunMode leftRunMode = leftMotor.getMode();
         DcMotor.RunMode rightRunMode = rightMotor.getMode();
         setMotorRunMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -70,9 +70,9 @@ public class Hardware {
         setRightMotorRunMode(runMode);
     }
 
-    void balance(){
-     //   power = ((getheading * speed) / ratioWheel + encoder + speed)
-
+    public void stop(){
+        leftMotor.setPower(0.0);
+        rightMotor.setPower(0.0);
     }
 }
-}
+
