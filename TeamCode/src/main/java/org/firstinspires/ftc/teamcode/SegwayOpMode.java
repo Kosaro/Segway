@@ -68,8 +68,10 @@ public class SegwayOpMode extends LinearOpMode{
                 lastTime = getRuntime();
             }
             double revolutionsPerSecond = robot.balance(angularVelocity);
-            robot.leftMotor.setPower(robot.scaleRevolutionsPerSecondToPower(revolutionsPerSecond));
-            robot.rightMotor.setPower(robot.scaleRevolutionsPerSecondToPower(revolutionsPerSecond));
+            //robot.leftMotor.setPower(robot.scaleRevolutionsPerSecondToPower(revolutionsPerSecond));
+            //robot.rightMotor.setPower(robot.scaleRevolutionsPerSecondToPower(revolutionsPerSecond));
+            robot.leftMotor.setPower(revolutionsPerSecond);
+            robot.rightMotor.setPower(revolutionsPerSecond);
 
             telemetry.addData("Gyro", currentAngle);
             telemetry.addData("Power", robot.scaleRevolutionsPerSecondToPower(revolutionsPerSecond));

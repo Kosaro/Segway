@@ -48,7 +48,7 @@ public class Hardware {
     private void initialize(HardwareMap hardwareMap) {
         leftMotor = hardwareMap.dcMotor.get(LEFT_MOTOR);
         rightMotor = hardwareMap.dcMotor.get(RIGHT_MOTOR);
-        gyro = hardwareMap.get(ModernRoboticsI2cGyro.class,GYRO);
+        gyro = hardwareMap.get(ModernRoboticsI2cGyro.class, GYRO);
         //frontUltrasonic = hardwareMap.ultrasonicSensor.get(FRONT_ULTRASONIC);
         //rearUltrasonic = hardwareMap.ultrasonicSensor.get(REAR_ULTRASONIC);
 
@@ -57,7 +57,7 @@ public class Hardware {
     }
 
 
-    public void resetEncoders(){
+    public void resetEncoders() {
         DcMotor.RunMode leftRunMode = leftMotor.getMode();
         DcMotor.RunMode rightRunMode = rightMotor.getMode();
         setMotorRunMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -78,23 +78,31 @@ public class Hardware {
         setRightMotorRunMode(runMode);
     }
 
-    public void stop(){
+    public void stop() {
         leftMotor.setPower(0.0);
-        rightMotor.setPower(0.0);}
+        rightMotor.setPower(0.0);
+    }
 
     double balance(double angularVelocity) {
         double gyroHeading = gyro.getHeading();
-            if (gyroHeading > 180){
-                gyroHeading -= 360;
+        if (gyroHeading > 180) {
+            gyroHeading -= 360;
         }
-        if (gyroHeading == 0)
+        /**
+         if (gyroHeading == 0)
+         return 0;
+         double speed = ROBOT_HEIGHT *  Math.abs (angularVelocity) / Math.cos((gyroHeading / 360) * 2 * Math.PI);
+         if (gyroHeading < 0){
+         speed = -speed;
+         }
+         double revolutionPerSecond = speed / WHEEL_CIRCUMFERENCE;
+         return revolutionPerSecond;
+         */
+        gyroHeading = Range.clip(gyroHeading,-10 , 10);
+        if (Math.abs(gyroHeading) > 40){
             return 0;
-        double speed = ROBOT_HEIGHT * Math.abs (angularVelocity) / Math.cos((gyroHeading / 360) * 2 * Math.PI);
-        if (gyroHeading < 0){
-            speed = -speed;
         }
-        double revolutionPerSecond = speed / WHEEL_CIRCUMFERENCE;
-        return revolutionPerSecond;
+        return Range.scale(gyroHeading, -10, 10, -.5, .5);
     }
 
     static double scaleRevolutionsPerSecondToPower(double revolutionsPerSecond) {
