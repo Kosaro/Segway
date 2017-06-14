@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cGyro;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.GyroSensor;
@@ -16,7 +17,7 @@ import com.qualcomm.robotcore.util.Range;
 public class Hardware {
     //Hardware Constants
     final static double ENCODER_TICKS_PER_REVOLUTION = 1120;
-    final static double ROBOT_HEIGHT = 20.0;   //inches
+    final static double ROBOT_HEIGHT = 24.0;   //inches
     final static double WHEEL_DIAMETER = 4.0;  //inches
     final static double WHEEL_CIRCUMFERENCE = WHEEL_DIAMETER * Math.PI;
 
@@ -35,7 +36,7 @@ public class Hardware {
 
     DcMotor leftMotor;
     DcMotor rightMotor;
-    GyroSensor gyro;
+    ModernRoboticsI2cGyro gyro;
     UltrasonicSensor frontUltrasonic;
     UltrasonicSensor rearUltrasonic;
 
@@ -55,7 +56,7 @@ public class Hardware {
     }
 
 
-    void resetEncoders() {
+    public void resetEncoders(){
         DcMotor.RunMode leftRunMode = leftMotor.getMode();
         DcMotor.RunMode rightRunMode = rightMotor.getMode();
         setMotorRunMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -75,6 +76,10 @@ public class Hardware {
         setLeftMotorRunMode(runMode);
         setRightMotorRunMode(runMode);
     }
+
+    public void stop(){
+        leftMotor.setPower(0.0);
+        rightMotor.setPower(0.0);
 
     double balance(double angularVelocity) {
         double gyroHeading = gyro.getHeading();
