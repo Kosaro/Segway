@@ -21,6 +21,7 @@ public class Hardware {
     final static double WHEEL_DIAMETER = 4.0;  //inches
     final static double WHEEL_CIRCUMFERENCE = WHEEL_DIAMETER * Math.PI;
 
+    //Hello there testing
 
     //Configuration names
     final static String LEFT_MOTOR = "lm";
@@ -77,10 +78,9 @@ public class Hardware {
         setRightMotorRunMode(runMode);
     }
 
-    public void stop() {
+    public void stop(){
         leftMotor.setPower(0.0);
-        rightMotor.setPower(0.0);
-    }
+        rightMotor.setPower(0.0);}
 
     double balance(double angularVelocity) {
         double gyroHeading = gyro.getHeading();

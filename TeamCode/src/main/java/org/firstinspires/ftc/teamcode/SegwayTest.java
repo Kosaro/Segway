@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.GyroSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.UltrasonicSensor;
+import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AngularVelocity;
@@ -22,6 +23,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 //@Disabled
 public class SegwayTest extends LinearOpMode {
     Hardware robot;
+
 
     //constants relative to wheel size
     double kGyroAngle = 3.5;
@@ -62,7 +64,7 @@ public class SegwayTest extends LinearOpMode {
     double gAngleGlobal;
 
     double motorPos = 0;
-    long mrcSum = 0, mrcSumPrev; 
+    long mrcSum = 0, mrcSumPrev;
     long motorDiff;
     long mrcDeltaP3 = 0;
     long mrcDeltaP2 = 0;
@@ -72,6 +74,7 @@ public class SegwayTest extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
         robot = new Hardware(hardwareMap);
 
+        //resets and calibrates encoders
         robot.resetEncoders();
         robot.gyro.calibrate();
         double calibrationStartTime = getRuntime();
@@ -80,15 +83,15 @@ public class SegwayTest extends LinearOpMode {
             telemetry.update();
             idle();
         }
+
         balance();
-//===========================================================================
     }
+//===================================================================================
 
     public void getGyroData(double gyroSpeed, double gyroAngle) {
         int heading = robot.gyro.getHeading();
 
-        AngularVelocity rates = robot.gyro.getAngularVelocity(AngleUnit.DEGREES);
-        float zAngle = robot.gyro.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
+        //find offset of gyro
         int zAxisOffset = robot.gyro.getZAxisOffset();
 
         double gOffset = emaOffset * heading + (1 - emaOffset) * zAxisOffset;
@@ -97,7 +100,7 @@ public class SegwayTest extends LinearOpMode {
         gAngleGlobal += gyroSpeed * tInterval;
     }
 
-    //===========================================================================
+    //===============================================================================
     public void getMotorData(double motorSpeed, double motorPos) {
         long mrcLeft, mrcRight, mrcDelta;
 
@@ -110,12 +113,12 @@ public class SegwayTest extends LinearOpMode {
         mrcSum = mrcLeft + mrcRight;
         motorDiff = mrcLeft - mrcRight;
 
-        // mrcDetla is the change int sum of the motor encoders, update
-        // motorPos based on this detla
+        // mrcDelta is the sum of the motor encoders
+        // motorPos is based on this delta
         mrcDelta = mrcSum - mrcSumPrev;
         motorPos += mrcDelta;
 
-        // motorSpeed is based on the average of the last four delta's.
+        // motorSpeed is based on the average of the last four deltas.
         motorSpeed = (mrcDelta + mrcDeltaP1 + mrcDeltaP2 + mrcDeltaP3) / (4 * tInterval);
 
         // Shift the latest mrcDelta into the previous three saved delta values
@@ -123,7 +126,7 @@ public class SegwayTest extends LinearOpMode {
         mrcDeltaP2 = mrcDeltaP1;
         mrcDeltaP1 = mrcDelta;
     }
-//=====================================================================================
+//====================================================================================
 
     // Calculate the interval time from one iteration of the loop to the next.
     public void calcInterval(long cLoop) {
@@ -133,27 +136,29 @@ public class SegwayTest extends LinearOpMode {
             tInterval = 0.0055;
             tCalcStart = nPgmTime;
         } else {
-            // Take average of number of times through the loop and
-            // use for interval time.
+            // Take average of number of times through the loop and use for interval time.
             tInterval = (nPgmTime - tCalcStart) / (cLoop * 1000.0);
         }
     }
 
-    //=====================================================================================
-    public void steerControl(double power, double powerLeft, double powerRight) {
+    //================================================================================
+    public void steerControl(double power) {
         double powerSteer;
 
         motorDiffTarget += motorControlSteer * tInterval;
 
         powerSteer = kSteer * (motorDiffTarget - motorDiff);
-        powerLeft = power + powerSteer;
-        powerRight = power - powerSteer;
+        double powerLeft = power + powerSteer;
+        double powerRight = power - powerSteer;
 
-        if (powerLeft > 100) powerLeft = 100;
-        if (powerLeft < -100) powerLeft = -100;
-
-        if (powerRight > 100) powerRight = 100;
-        if (powerRight < -100) powerRight = -100;
+        if (powerLeft > 100)
+            powerLeft = 100;
+        else if (powerLeft < -100)
+            powerLeft = -100;
+        if (powerRight > 100)
+            powerRight = 100;
+        else if (powerRight < -100)
+            powerRight = -100;
     }
 //====================================================================================
 
@@ -163,32 +168,35 @@ public class SegwayTest extends LinearOpMode {
         double gyroSpeed = 0.0;
         double gyroAngle = 0.0;
         double motorSpeed = 0.0;
-        double power = 0.0;
-        double powerLeft = 0.0;
-        double powerRight = 0.0;
+        double power;
+        double powerLeft = 0;
+        double powerRight = 0;
         long tMotorPosOK;
         long cLoop = 0;
 
         tMotorPosOK = nPgmTime;
 
-        calcInterval(cLoop++);
-        getGyroData(gyroSpeed, gyroAngle);
-        getMotorData(motorSpeed, motorPos);
-        motorPos -= motorControlDrive * tInterval;
+        while(opModeIsActive()) {
+            calcInterval(cLoop++);
+            getGyroData(gyroSpeed, gyroAngle);
+            getMotorData(motorSpeed, motorPos);
+            motorPos -= motorControlDrive * tInterval;
 
-        power = (kGyroSpeed * gyroSpeed + kGyroAngle * gyroAngle) / ratioWheel
-                + kPos * motorPos + kDrive * motorControlDrive + kSpeed * motorSpeed;
-        if (Math.abs(power) < 100)
-            tMotorPosOK = nPgmTime;
-        steerControl(power, powerLeft, powerRight);
-        robot.leftMotor.setPower(powerLeft);
-        robot.rightMotor.setPower(powerRight);
+            power = (kGyroSpeed * gyroSpeed + kGyroAngle * gyroAngle) / ratioWheel
+                    + kPos * motorPos + kDrive * motorControlDrive + kSpeed * motorSpeed;
+            if (Math.abs(power) < 100)
+                tMotorPosOK = nPgmTime;
+            steerControl(power);
+            robot.leftMotor.setPower(powerLeft);
+            robot.rightMotor.setPower(powerRight);
 
-        if ((nPgmTime - tMotorPosOK) > timeFallLimit) {
+            if ((nPgmTime - tMotorPosOK) > timeFallLimit) {
+                break;
+            }
         }
-
         sleep(2000);
 
         robot.stop();
     }
 }
+
