@@ -173,7 +173,7 @@ public class SegwayTest extends LinearOpMode {
         double powerRight = 0;
         long tMotorPosOK;
         long cLoop = 0;
-
+ 
         tMotorPosOK = nPgmTime;
 
         while(opModeIsActive()) {
