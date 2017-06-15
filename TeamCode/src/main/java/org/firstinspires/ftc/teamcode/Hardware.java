@@ -3,12 +3,11 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cGyro;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.GyroSensor;
-import com.qualcomm.robotcore.hardware.Gyroscope;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.UltrasonicSensor;
-import com.qualcomm.robotcore.robocol.RobocolDatagramSocket;
 import com.qualcomm.robotcore.util.Range;
+
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
 /**
  * Created by Oscar on 6/13/2017.
@@ -17,7 +16,7 @@ import com.qualcomm.robotcore.util.Range;
 public class Hardware {
     //Hardware Constants
     final static double ENCODER_TICKS_PER_REVOLUTION = 1120;
-    final static double ROBOT_HEIGHT = 24.0;   //inches
+    //final static double ROBOT_HEIGHT = 24.0;   //inches
     final static double WHEEL_DIAMETER = 4.0;  //inches
     final static double WHEEL_CIRCUMFERENCE = WHEEL_DIAMETER * Math.PI;
 
@@ -83,26 +82,36 @@ public class Hardware {
         rightMotor.setPower(0.0);
     }
 
-    double balance(double angularVelocity) {
+    double balance() {
         double gyroHeading = gyro.getHeading();
         if (gyroHeading > 180) {
             gyroHeading -= 360;
+
         }
         /**
          if (gyroHeading == 0)
          return 0;
-         double speed = ROBOT_HEIGHT *  Math.abs (angularVelocity) / Math.cos((gyroHeading / 360) * 2 * Math.PI);
+         double speed = ROBOT_HEIGHT *  Math.abs (gyro.getAngularVelocity(AngleUnit.RADIANS)) / Math.cos((gyroHeading / 360) * 2 * Math.PI);
          if (gyroHeading < 0){
          speed = -speed;
          }
          double revolutionPerSecond = speed / WHEEL_CIRCUMFERENCE;
-         return revolutionPerSecond;
+         return scaleRevolutionsPerSecond(revolutionPerSecond);
          */
-        gyroHeading = Range.clip(gyroHeading,-10 , 10);
-        if (Math.abs(gyroHeading) > 40){
+
+        if (Math.abs(gyroHeading) > 15) {
             return 0;
         }
-        return Range.scale(gyroHeading, -10, 10, -.5, .5);
+        int gyroRange = 5 ;
+        gyroHeading = Range.clip(gyroHeading, -gyroRange, gyroRange);
+
+        double power = Range.scale(gyroHeading, -gyroRange, gyroRange , -1, 1);
+
+        //power = Math.pow(power, 1.2);
+        if (gyroHeading < 0 && power > 0)
+            power = -power;
+        return power;
+
     }
 
     static double scaleRevolutionsPerSecondToPower(double revolutionsPerSecond) {
