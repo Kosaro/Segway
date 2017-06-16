@@ -42,9 +42,9 @@ public class SegwayOpMode extends LinearOpMode{
 
         robot.deviceInterfaceModule.setLED(0, true);
 
-        angles = robot.imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+        robot.angles = robot.imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
 
-        double pitch = robot.formatAngle(robot.angles.angleUnit, angles.thirdAngle);
+        double pitch = robot.angles.thirdAngle;
 
         double gyroHeading = 0;
         robot.deviceInterfaceModule.setLED(0, false);
