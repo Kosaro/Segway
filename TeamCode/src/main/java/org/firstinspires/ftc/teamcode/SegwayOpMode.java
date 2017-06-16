@@ -70,7 +70,7 @@ public class SegwayOpMode extends LinearOpMode{
                 counterTime = currentTime;
             }
 
-            gyroHeading += robot.hTGyro.getAngularVelocity(AngleUnit.DEGREES).zRotationRate / (currentTime - lastTime);
+            gyroHeading += (robot.hTGyro.getAngularVelocity(AngleUnit.DEGREES).zRotationRate * (currentTime - lastTime));
             lastTime = currentTime;
 
 
