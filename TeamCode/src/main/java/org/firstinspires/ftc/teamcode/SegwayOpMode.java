@@ -86,7 +86,7 @@ public class SegwayOpMode extends LinearOpMode{
             robot.leftMotor.setPower(power);
             robot.rightMotor.setPower(power);
 
-
+            telemetry.addData("rate", robot.hTGyro.getAngularVelocity(AngleUnit.DEGREES).zRotationRate);
             telemetry.addData("Gyro", currentAngle);
             telemetry.addData("Power", power);
             telemetry.update();

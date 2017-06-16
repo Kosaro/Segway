@@ -135,6 +135,7 @@ public class Hardware {
 
 
 
+
         return power;
 
     }
