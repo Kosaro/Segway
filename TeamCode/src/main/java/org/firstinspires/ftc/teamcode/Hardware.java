@@ -66,7 +66,7 @@ public class Hardware {
         rightMotor = hardwareMap.dcMotor.get(RIGHT_MOTOR);
         //gyro = hardwareMap.get(ModernRoboticsI2cGyro.class, GYRO);
         //deviceInterfaceModule = hardwareMap.deviceInterfaceModule.get("dim");
-        imu = hardwareMap.get(BNO055IMU.class, IMU );
+        imu = hardwareMap.get(BNO055IMU.class, IMU);
 
         //frontUltrasonic = hardwareMap.ultrasonicSensor.get(FRONT_ULTRASONIC);
         //rearUltrasonic = hardwareMap.ultrasonicSensor.get(REAR_ULTRASONIC);
@@ -77,16 +77,20 @@ public class Hardware {
 
     public void initializeImuParameters() {
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
-        parameters.angleUnit           = BNO055IMU.AngleUnit.DEGREES;
-        parameters.accelUnit           = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
+        parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
+        parameters.accelUnit = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
 
         imu.initialize(parameters);
     }
 
-    double getPitch(){
+    double getPitch() {
 
         return imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).toAngleUnit(AngleUnit.DEGREES).thirdAngle;
 
+    }
+
+    double getAcceleration(){
+        return imu.getAcceleration().zAccel;
     }
 
 
@@ -130,37 +134,38 @@ public class Hardware {
          double revolutionPerSecond = speed / WHEEL_CIRCUMFERENCE;
          return scaleRevolutionsPerSecond(revolutionPerSecond);
          */
-
-        if (Math.abs(gyroHeading) > 40) {
+        imu.getAcceleration().
+        gyroHeading += 1.5;
+        if (Math.abs(gyroHeading) > 30 || Math.abs(gyroHeading) < 1) {
             return 0;
         }
 
-        int gyroRange = 15 ;
-        /**
-        if (Math.abs(gyroHeading) > gyroRange){
-            deviceInterfaceModule.setLED(1, true);
-        }else{
-            deviceInterfaceModule.setLED(1, false);
-        }
-         */
-        int targetAngleConst = 1;
 
-        int targetAngle = 0;
-        if (gyroHeading > 0){
-            targetAngle = -targetAngleConst;
-        }else if (gyroHeading < 0){
-            targetAngle = targetAngleConst;
+        /**
+         if (Math.abs(gyroHeading) > gyroRange){
+         deviceInterfaceModule.setLED(1, true);
+         }else{
+         deviceInterfaceModule.setLED(1, false);
+         }
+         */
+        //int targetAngleConst = 1;
+
+        double gyroRange = 20;
+
+        double targetAngle = 0;
+        if (gyroHeading > 0) {
+            targetAngle = -.8;
+        } else if (gyroHeading < 0) {
+            targetAngle = .8;
         }
         gyroHeading -= targetAngle;
         gyroHeading = Range.clip(gyroHeading, -gyroRange, gyroRange);
 
-        double power = Range.scale(gyroHeading, -gyroRange, gyroRange , -1, 1);
+        double power = Range.scale(gyroHeading, -gyroRange, gyroRange, -1, 1);
 
-        //power = Math.pow(power, 1.2);
-        //if (gyroHeading < 0 && power > 0)
-        //    power = -power;
-
-
+        power = Math.pow(Math.abs(power), 1);
+        if (gyroHeading < 0 && power > 0)
+            power = -power;
 
 
         return power;
@@ -175,7 +180,8 @@ public class Hardware {
     String formatAngle(AngleUnit angleUnit, double angle) {
         return formatDegrees(AngleUnit.DEGREES.fromUnit(angleUnit, angle));
     }
-    String formatDegrees(double degrees){
+
+    String formatDegrees(double degrees) {
         return String.format(Locale.getDefault(), "%.1f", AngleUnit.DEGREES.normalize(degrees));
     }
 }
