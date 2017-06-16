@@ -36,6 +36,7 @@ public class SegwayOpMode extends LinearOpMode{
         robot.setMotorRunMode(DcMotor.RunMode.RUN_USING_ENCODER);
         robot.gyro.calibrate();
         double calibrationStartTime = getRuntime();
+        robot.deviceInterfaceModule.setLED(0, true);
         while (robot.gyro.isCalibrating()&& !isStopRequested()){
             telemetry.addData("Gyro calibrating", String.format("%1.1f", getRuntime() - calibrationStartTime));
             telemetry.update();
@@ -43,13 +44,23 @@ public class SegwayOpMode extends LinearOpMode{
         }
         telemetry.addData("Gyro calibration finished in", String.format("%1.1f seconds", getRuntime() - calibrationStartTime));
         telemetry.update();
+        robot.deviceInterfaceModule.setLED(0, false);
 
         waitForStart();
         telemetry.update();
 
         robot.resetEncoders();
 
+        int counter = 0;
+        double counterTime = getRuntime();
+        double cyclesPerSecond = 0;
         while (opModeIsActive()){
+            counter ++;
+            if (getRuntime() > counterTime + .5){
+               cyclesPerSecond = counter / (getRuntime() - counterTime);
+                counterTime = getRuntime();
+            }
+            telemetry.addData("Miliseconds per cycle", String.format("%1.4f",1 / cyclesPerSecond * 1000));
 
             double currentAngle = robot.gyro.getHeading();
             if (currentAngle > 180){
@@ -59,6 +70,7 @@ public class SegwayOpMode extends LinearOpMode{
             double power = robot.balance();
             robot.leftMotor.setPower(power);
             robot.rightMotor.setPower(power);
+
 
             telemetry.addData("Gyro", currentAngle);
             telemetry.addData("Power", power);

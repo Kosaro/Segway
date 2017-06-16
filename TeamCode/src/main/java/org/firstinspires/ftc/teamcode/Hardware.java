@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cGyro;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.DeviceInterfaceModule;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.UltrasonicSensor;
 import com.qualcomm.robotcore.util.Range;
@@ -37,6 +38,7 @@ public class Hardware {
     DcMotor leftMotor;
     DcMotor rightMotor;
     ModernRoboticsI2cGyro gyro;
+    DeviceInterfaceModule deviceInterfaceModule;
     UltrasonicSensor frontUltrasonic;
     UltrasonicSensor rearUltrasonic;
 
@@ -48,6 +50,7 @@ public class Hardware {
         leftMotor = hardwareMap.dcMotor.get(LEFT_MOTOR);
         rightMotor = hardwareMap.dcMotor.get(RIGHT_MOTOR);
         gyro = hardwareMap.get(ModernRoboticsI2cGyro.class, GYRO);
+        deviceInterfaceModule = hardwareMap.deviceInterfaceModule.get("dim");
         //frontUltrasonic = hardwareMap.ultrasonicSensor.get(FRONT_ULTRASONIC);
         //rearUltrasonic = hardwareMap.ultrasonicSensor.get(REAR_ULTRASONIC);
 
@@ -102,7 +105,13 @@ public class Hardware {
         if (Math.abs(gyroHeading) > 20) {
             return 0;
         }
-        int gyroRange = 5 ;
+
+        int gyroRange = 15 ;
+        if (Math.abs(gyroHeading) > gyroRange){
+            deviceInterfaceModule.setLED(1, true);
+        }else{
+            deviceInterfaceModule.setLED(1, false);
+        }
         int targetAngleConst = 1;
 
         int targetAngle = 0;
@@ -119,6 +128,9 @@ public class Hardware {
         //power = Math.pow(power, 1.2);
         if (gyroHeading < 0 && power > 0)
             power = -power;
+
+
+
         return power;
 
     }
