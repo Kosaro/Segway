@@ -49,9 +49,13 @@ public class SegwayOpMode extends LinearOpMode{
         telemetry.addData("Gyro calibration finished in", String.format("%1.1f seconds", getRuntime() - calibrationStartTime));
         telemetry.update();
          */
+        telemetry.addData("Calibration", "In progress");
+        telemetry.update();
         robot.hTGyro.calibrate(3000, 100);
         double gyroHeading = 0;
         robot.deviceInterfaceModule.setLED(0, false);
+        telemetry.addData("Calibration", "Finished");
+        telemetry.update();
 
         waitForStart();
         telemetry.update();
