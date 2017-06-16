@@ -7,6 +7,7 @@ package org.firstinspires.ftc.teamcode;
 import android.util.Log;
 
 import com.qualcomm.ftccommon.DbgLog;
+import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -37,6 +38,7 @@ public class SegwayOpMode extends LinearOpMode{
         robot = new Hardware(hardwareMap);
         robot.setMotorRunMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
+
         robot.deviceInterfaceModule.setLED(0, true);
         /**
         robot.gyro.calibrate();
@@ -49,7 +51,7 @@ public class SegwayOpMode extends LinearOpMode{
         telemetry.addData("Gyro calibration finished in", String.format("%1.1f seconds", getRuntime() - calibrationStartTime));
         telemetry.update();
          */
-        robot.hTGyro.calibrate(3000, 100);
+
         double gyroHeading = 0;
         robot.deviceInterfaceModule.setLED(0, false);
 
@@ -70,11 +72,11 @@ public class SegwayOpMode extends LinearOpMode{
                 counterTime = currentTime;
             }
 
-            gyroHeading += (robot.hTGyro.getAngularVelocity(AngleUnit.DEGREES).zRotationRate * (currentTime - lastTime));
+           // gyroHeading +=
             lastTime = currentTime;
 
 
-            telemetry.addData("Miliseconds per cycle", String.format("%1.4f",(1 / cyclesPerSecond) * 1000));
+            telemetry.addData("Milliseconds per cycle", "%1.4f",(1 / cyclesPerSecond) * 1000);
 
             double currentAngle = gyroHeading;
             if (currentAngle > 180){
@@ -86,7 +88,6 @@ public class SegwayOpMode extends LinearOpMode{
             robot.leftMotor.setPower(power);
             robot.rightMotor.setPower(power);
 
-            telemetry.addData("rate", robot.hTGyro.getAngularVelocity(AngleUnit.DEGREES).zRotationRate);
             telemetry.addData("Gyro", currentAngle);
             telemetry.addData("Power", power);
             telemetry.update();

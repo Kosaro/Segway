@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.hitechnic.HiTechnicNxtGyroSensor;
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cGyro;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -9,7 +10,9 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.UltrasonicSensor;
 import com.qualcomm.robotcore.util.Range;
 
+import org.firstinspires.ftc.robotcore.external.navigation.Acceleration;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 
 /**
  * Created by Oscar on 6/13/2017.
@@ -29,6 +32,7 @@ public class Hardware {
     final static String RIGHT_MOTOR = "rm";
     final static String GYRO = "g";
     final static String HTGYRO = "htg";
+    final static String IMU = "imu";
     final static String FRONT_ULTRASONIC = "fu";
     final static String REAR_ULTRASONIC = "ru";
 
@@ -41,9 +45,13 @@ public class Hardware {
     DcMotor rightMotor;
     //ModernRoboticsI2cGyro gyro;
     HiTechnicNxtGyroSensor hTGyro;
+    BNO055IMU imu;
     DeviceInterfaceModule deviceInterfaceModule;
     UltrasonicSensor frontUltrasonic;
     UltrasonicSensor rearUltrasonic;
+
+    Orientation angles;
+    Acceleration gravity;
 
     Hardware(HardwareMap hardwareMap) {
         initialize(hardwareMap);
@@ -53,13 +61,22 @@ public class Hardware {
         leftMotor = hardwareMap.dcMotor.get(LEFT_MOTOR);
         rightMotor = hardwareMap.dcMotor.get(RIGHT_MOTOR);
         //gyro = hardwareMap.get(ModernRoboticsI2cGyro.class, GYRO);
-        hTGyro = hardwareMap.get(HiTechnicNxtGyroSensor.class, HTGYRO);
         deviceInterfaceModule = hardwareMap.deviceInterfaceModule.get("dim");
+        imu = hardwareMap.get(BNO055IMU.class, IMU );
+
         //frontUltrasonic = hardwareMap.ultrasonicSensor.get(FRONT_ULTRASONIC);
         //rearUltrasonic = hardwareMap.ultrasonicSensor.get(REAR_ULTRASONIC);
 
         leftMotor.setDirection(LEFT_MOTOR_DIRECTION);
         leftMotor.setDirection(RIGHT_MOTOR_DIRECTION);
+    }
+
+    public void imuParameters() {
+        BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
+        parameters.angleUnit           = BNO055IMU.AngleUnit.DEGREES;
+        parameters.accelUnit           = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
+
+        imu.initialize(parameters);
     }
 
 
@@ -130,8 +147,8 @@ public class Hardware {
         double power = Range.scale(gyroHeading, -gyroRange, gyroRange , -1, 1);
 
         //power = Math.pow(power, 1.2);
-        if (gyroHeading < 0 && power > 0)
-            power = -power;
+        //if (gyroHeading < 0 && power > 0)
+        //    power = -power;
 
 
 
