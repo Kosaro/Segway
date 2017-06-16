@@ -12,7 +12,11 @@ import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.navigation.Acceleration;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
+
+import java.util.Locale;
 
 /**
  * Created by Oscar on 6/13/2017.
@@ -161,5 +165,12 @@ public class Hardware {
     static double scaleRevolutionsPerSecondToPower(double revolutionsPerSecond) {
         revolutionsPerSecond = Range.clip(revolutionsPerSecond, -2.286, 2.286);
         return Range.scale(revolutionsPerSecond, -2.286, 2.286, -1, 1);
+    }
+
+    String formatAngle(AngleUnit angleUnit, double angle) {
+        return formatDegrees(AngleUnit.DEGREES.fromUnit(angleUnit, angle));
+    }
+    String formatDegrees(double degrees){
+        return String.format(Locale.getDefault(), "%.1f", AngleUnit.DEGREES.normalize(degrees));
     }
 }

@@ -13,6 +13,8 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 
 @TeleOp(name = "Segway")
 //@Disabled
@@ -39,17 +41,11 @@ public class SegwayOpMode extends LinearOpMode{
         robot.setMotorRunMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         robot.deviceInterfaceModule.setLED(0, true);
-        /**
-        robot.gyro.calibrate();
-        double calibrationStartTime = getRuntime();
-        while (robot.gyro.isCalibrating()&& !isStopRequested()){
-            telemetry.addData("Gyro calibrating", String.format("%1.1f", getRuntime() - calibrationStartTime));
-            telemetry.update();
-            idle();
-        }
-        telemetry.addData("Gyro calibration finished in", String.format("%1.1f seconds", getRuntime() - calibrationStartTime));
-        telemetry.update();
-         */
+
+        angles = robot.imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+
+        double pitch = robot.formatAngle(robot.angles.angleUnit, angles.thirdAngle);
+
         double gyroHeading = 0;
         robot.deviceInterfaceModule.setLED(0, false);
 
