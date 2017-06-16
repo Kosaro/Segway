@@ -15,6 +15,8 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
+import org.firstinspires.ftc.robotcore.external.navigation.Position;
+import org.firstinspires.ftc.robotcore.external.navigation.Velocity;
 
 import java.util.Locale;
 
@@ -67,6 +69,7 @@ public class Hardware {
         //gyro = hardwareMap.get(ModernRoboticsI2cGyro.class, GYRO);
         //deviceInterfaceModule = hardwareMap.deviceInterfaceModule.get("dim");
         imu = hardwareMap.get(BNO055IMU.class, IMU);
+        imu.startAccelerationIntegration(new Position(), new Velocity(), 1000);
 
         //frontUltrasonic = hardwareMap.ultrasonicSensor.get(FRONT_ULTRASONIC);
         //rearUltrasonic = hardwareMap.ultrasonicSensor.get(REAR_ULTRASONIC);
