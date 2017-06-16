@@ -55,6 +55,7 @@ public class Hardware {
 
     Hardware(HardwareMap hardwareMap) {
         initialize(hardwareMap);
+        imuParameters();
     }
 
     private void initialize(HardwareMap hardwareMap) {
