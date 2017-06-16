@@ -40,24 +40,18 @@ public class SegwayOpMode extends LinearOpMode{
         robot = new Hardware(hardwareMap);
         robot.setMotorRunMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-        robot.deviceInterfaceModule.setLED(0, true);
 
         robot.angles = robot.imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
 
         double pitch = robot.angles.thirdAngle;
 
-        double gyroHeading = 0;
-        robot.deviceInterfaceModule.setLED(0, false);
-
         waitForStart();
-        telemetry.update();
 
         robot.resetEncoders();
 
         int counter = 0;
         double counterTime = getRuntime();
         double cyclesPerSecond = 0;
-        double lastTime = getRuntime();
         while (opModeIsActive()){
             double currentTime = getRuntime();
             counter ++;
@@ -66,23 +60,25 @@ public class SegwayOpMode extends LinearOpMode{
                 counterTime = currentTime;
             }
 
-           // gyroHeading +=
-            lastTime = currentTime;
 
 
             telemetry.addData("Milliseconds per cycle", "%1.4f",(1 / cyclesPerSecond) * 1000);
 
-            double currentAngle = gyroHeading;
-            if (currentAngle > 180){
-                currentAngle -= 360;
+
+            if (pitch > 180){
+                pitch -= 360;
             }
 
-            double power = robot.balance(gyroHeading);
+            double power = robot.balance(pitch);
 
             robot.leftMotor.setPower(power);
             robot.rightMotor.setPower(power);
 
-            telemetry.addData("Gyro", currentAngle);
+            if (pitch > 180){
+                pitch -= 360;
+            }
+
+            telemetry.addData("Pitch Angle", pitch);
             telemetry.addData("Power", power);
             telemetry.update();
             idle();

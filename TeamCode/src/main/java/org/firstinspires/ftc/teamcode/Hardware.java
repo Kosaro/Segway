@@ -59,7 +59,7 @@ public class Hardware {
 
     Hardware(HardwareMap hardwareMap) {
         initialize(hardwareMap);
-        imuParameters();
+        initializeImuParameters();
     }
 
     private void initialize(HardwareMap hardwareMap) {
@@ -76,7 +76,7 @@ public class Hardware {
         leftMotor.setDirection(RIGHT_MOTOR_DIRECTION);
     }
 
-    public void imuParameters() {
+    public void initializeImuParameters() {
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
         parameters.angleUnit           = BNO055IMU.AngleUnit.DEGREES;
         parameters.accelUnit           = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
