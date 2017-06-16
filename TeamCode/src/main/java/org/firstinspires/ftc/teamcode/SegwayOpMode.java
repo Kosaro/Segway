@@ -34,9 +34,11 @@ public class SegwayOpMode extends LinearOpMode{
     public void runOpMode() throws InterruptedException {
         robot = new Hardware(hardwareMap);
         robot.setMotorRunMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        robot.deviceInterfaceModule.setLED(0, true);
+        /**
         robot.gyro.calibrate();
         double calibrationStartTime = getRuntime();
-        robot.deviceInterfaceModule.setLED(0, true);
         while (robot.gyro.isCalibrating()&& !isStopRequested()){
             telemetry.addData("Gyro calibrating", String.format("%1.1f", getRuntime() - calibrationStartTime));
             telemetry.update();
@@ -44,6 +46,8 @@ public class SegwayOpMode extends LinearOpMode{
         }
         telemetry.addData("Gyro calibration finished in", String.format("%1.1f seconds", getRuntime() - calibrationStartTime));
         telemetry.update();
+         */
+        robot.hTGyro.calibrate(3000, 100);
         robot.deviceInterfaceModule.setLED(0, false);
 
         waitForStart();
@@ -54,20 +58,22 @@ public class SegwayOpMode extends LinearOpMode{
         int counter = 0;
         double counterTime = getRuntime();
         double cyclesPerSecond = 0;
+        double lastTime = getRuntime();
         while (opModeIsActive()){
             counter ++;
             if (getRuntime() > counterTime + .5){
                cyclesPerSecond = counter / (getRuntime() - counterTime);
                 counterTime = getRuntime();
             }
-            telemetry.addData("Miliseconds per cycle", String.format("%1.4f",1 / cyclesPerSecond * 1000));
+            telemetry.addData("Miliseconds per cycle", String.format("%1.4f",(1 / cyclesPerSecond) * 1000));
 
             double currentAngle = robot.gyro.getHeading();
             if (currentAngle > 180){
                 currentAngle -= 360;
             }
 
-            double power = robot.balance();
+            double power = 0; //placeholder
+
             robot.leftMotor.setPower(power);
             robot.rightMotor.setPower(power);
 

@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.hardware.hitechnic.HiTechnicNxtGyroSensor;
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cGyro;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -27,6 +28,7 @@ public class Hardware {
     final static String LEFT_MOTOR = "lm";
     final static String RIGHT_MOTOR = "rm";
     final static String GYRO = "g";
+    final static String HTGYRO = "htg";
     final static String FRONT_ULTRASONIC = "fu";
     final static String REAR_ULTRASONIC = "ru";
 
@@ -38,6 +40,7 @@ public class Hardware {
     DcMotor leftMotor;
     DcMotor rightMotor;
     ModernRoboticsI2cGyro gyro;
+    HiTechnicNxtGyroSensor hTGyro;
     DeviceInterfaceModule deviceInterfaceModule;
     UltrasonicSensor frontUltrasonic;
     UltrasonicSensor rearUltrasonic;
@@ -50,6 +53,7 @@ public class Hardware {
         leftMotor = hardwareMap.dcMotor.get(LEFT_MOTOR);
         rightMotor = hardwareMap.dcMotor.get(RIGHT_MOTOR);
         gyro = hardwareMap.get(ModernRoboticsI2cGyro.class, GYRO);
+        hTGyro = hardwareMap.get(HiTechnicNxtGyroSensor.class, HTGYRO);
         deviceInterfaceModule = hardwareMap.deviceInterfaceModule.get("dim");
         //frontUltrasonic = hardwareMap.ultrasonicSensor.get(FRONT_ULTRASONIC);
         //rearUltrasonic = hardwareMap.ultrasonicSensor.get(REAR_ULTRASONIC);
@@ -85,8 +89,8 @@ public class Hardware {
         rightMotor.setPower(0.0);
     }
 
-    double balance() {
-        double gyroHeading = gyro.getHeading();
+    double balance(double gyroHeading) {
+        //double gyroHeading = gyro.getHeading();
         if (gyroHeading > 180) {
             gyroHeading -= 360;
 
