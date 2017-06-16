@@ -99,10 +99,19 @@ public class Hardware {
          return scaleRevolutionsPerSecond(revolutionPerSecond);
          */
 
-        if (Math.abs(gyroHeading) > 15) {
+        if (Math.abs(gyroHeading) > 20) {
             return 0;
         }
         int gyroRange = 5 ;
+        int targetAngleConst = 1;
+
+        int targetAngle = 0;
+        if (gyroHeading > 0){
+            targetAngle = -targetAngleConst;
+        }else if (gyroHeading < 0){
+            targetAngle = targetAngleConst;
+        }
+        gyroHeading -= targetAngle;
         gyroHeading = Range.clip(gyroHeading, -gyroRange, gyroRange);
 
         double power = Range.scale(gyroHeading, -gyroRange, gyroRange , -1, 1);
