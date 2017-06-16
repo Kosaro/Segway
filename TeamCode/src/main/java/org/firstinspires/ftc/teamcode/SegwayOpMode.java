@@ -11,6 +11,8 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+
 @TeleOp(name = "Segway")
 //@Disabled
 public class SegwayOpMode extends LinearOpMode{
@@ -48,6 +50,7 @@ public class SegwayOpMode extends LinearOpMode{
         telemetry.update();
          */
         robot.hTGyro.calibrate(3000, 100);
+        double gyroHeading = 0;
         robot.deviceInterfaceModule.setLED(0, false);
 
         waitForStart();
@@ -60,19 +63,25 @@ public class SegwayOpMode extends LinearOpMode{
         double cyclesPerSecond = 0;
         double lastTime = getRuntime();
         while (opModeIsActive()){
+            double currentTime = getRuntime();
             counter ++;
-            if (getRuntime() > counterTime + .5){
-               cyclesPerSecond = counter / (getRuntime() - counterTime);
-                counterTime = getRuntime();
+            if (currentTime > counterTime + .5){
+               cyclesPerSecond = counter / (currentTime - counterTime);
+                counterTime = currentTime;
             }
+
+            gyroHeading += robot.hTGyro.getAngularVelocity(AngleUnit.DEGREES).zRotationRate / (currentTime - lastTime);
+            lastTime = currentTime;
+
+
             telemetry.addData("Miliseconds per cycle", String.format("%1.4f",(1 / cyclesPerSecond) * 1000));
 
-            double currentAngle = robot.gyro.getHeading();
+            double currentAngle = gyroHeading;
             if (currentAngle > 180){
                 currentAngle -= 360;
             }
 
-            double power = 0; //placeholder
+            double power = robot.balance(gyroHeading);
 
             robot.leftMotor.setPower(power);
             robot.rightMotor.setPower(power);

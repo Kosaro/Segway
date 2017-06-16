@@ -39,7 +39,7 @@ public class Hardware {
 
     DcMotor leftMotor;
     DcMotor rightMotor;
-    ModernRoboticsI2cGyro gyro;
+    //ModernRoboticsI2cGyro gyro;
     HiTechnicNxtGyroSensor hTGyro;
     DeviceInterfaceModule deviceInterfaceModule;
     UltrasonicSensor frontUltrasonic;
@@ -52,7 +52,7 @@ public class Hardware {
     private void initialize(HardwareMap hardwareMap) {
         leftMotor = hardwareMap.dcMotor.get(LEFT_MOTOR);
         rightMotor = hardwareMap.dcMotor.get(RIGHT_MOTOR);
-        gyro = hardwareMap.get(ModernRoboticsI2cGyro.class, GYRO);
+        //gyro = hardwareMap.get(ModernRoboticsI2cGyro.class, GYRO);
         hTGyro = hardwareMap.get(HiTechnicNxtGyroSensor.class, HTGYRO);
         deviceInterfaceModule = hardwareMap.deviceInterfaceModule.get("dim");
         //frontUltrasonic = hardwareMap.ultrasonicSensor.get(FRONT_ULTRASONIC);
