@@ -89,7 +89,7 @@ public class Hardware {
 
     }
 
-    double getAcceleration(){
+    public double getAcceleration(){
         return imu.getAcceleration().zAccel;
     }
 
@@ -134,7 +134,6 @@ public class Hardware {
          double revolutionPerSecond = speed / WHEEL_CIRCUMFERENCE;
          return scaleRevolutionsPerSecond(revolutionPerSecond);
          */
-        imu.getAcceleration().
         gyroHeading += 1.5;
         if (Math.abs(gyroHeading) > 30 || Math.abs(gyroHeading) < 1) {
             return 0;
