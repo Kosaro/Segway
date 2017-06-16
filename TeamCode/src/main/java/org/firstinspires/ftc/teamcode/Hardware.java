@@ -131,7 +131,7 @@ public class Hardware {
          return scaleRevolutionsPerSecond(revolutionPerSecond);
          */
 
-        if (Math.abs(gyroHeading) > 20) {
+        if (Math.abs(gyroHeading) > 40) {
             return 0;
         }
 
