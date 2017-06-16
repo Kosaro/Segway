@@ -84,7 +84,8 @@ public class Hardware {
     }
 
     double getPitch(){
-        return imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).thirdAngle;
+
+        return imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).toAngleUnit(AngleUnit.DEGREES).thirdAngle;
 
     }
 
@@ -118,7 +119,7 @@ public class Hardware {
     double balance() {
         double gyroHeading = getPitch();
         //double gyroHeading = gyro.getHeading();
-        gyroHeading += 90;
+        gyroHeading -= 90;
         /**
          if (gyroHeading == 0)
          return 0;

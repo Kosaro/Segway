@@ -66,7 +66,7 @@ public class SegwayOpMode extends LinearOpMode {
             robot.leftMotor.setPower(power);
             robot.rightMotor.setPower(power);
 
-            double pitch = robot.getPitch() + 90;
+            double pitch = robot.getPitch() - 90;
             telemetry.addData("Pitch Angle", pitch);
             telemetry.addData("Power", power);
             telemetry.update();
