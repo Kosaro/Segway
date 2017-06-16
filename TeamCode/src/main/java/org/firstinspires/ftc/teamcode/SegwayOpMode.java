@@ -38,7 +38,6 @@ public class SegwayOpMode extends LinearOpMode{
         robot = new Hardware(hardwareMap);
         robot.setMotorRunMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-
         robot.deviceInterfaceModule.setLED(0, true);
         /**
         robot.gyro.calibrate();
@@ -51,7 +50,6 @@ public class SegwayOpMode extends LinearOpMode{
         telemetry.addData("Gyro calibration finished in", String.format("%1.1f seconds", getRuntime() - calibrationStartTime));
         telemetry.update();
          */
-
         double gyroHeading = 0;
         robot.deviceInterfaceModule.setLED(0, false);
 
