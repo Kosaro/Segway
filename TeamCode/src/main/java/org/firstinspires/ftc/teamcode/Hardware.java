@@ -92,8 +92,9 @@ public class Hardware {
 
     }
 
-    public double getAcceleration(){
+    double getAcceleration(){
         return imu.getAcceleration().zAccel;
+
     }
 
 
@@ -123,8 +124,8 @@ public class Hardware {
         rightMotor.setPower(0.0);
     }
 
-    double balance() {
-        double gyroHeading = getPitch();
+    double balance(double gyroHeading) {
+        //double gyroHeading = getPitch();
         //double gyroHeading = gyro.getHeading();
         gyroHeading -= 90;
         /**
@@ -137,11 +138,10 @@ public class Hardware {
          double revolutionPerSecond = speed / WHEEL_CIRCUMFERENCE;
          return scaleRevolutionsPerSecond(revolutionPerSecond);
          */
-        gyroHeading += 1.5;
-        if (Math.abs(gyroHeading) > 30 || Math.abs(gyroHeading) < 1) {
-            return 0;
+        gyroHeading += 0.8;
+        if (Math.abs(gyroHeading) > 40 || Math.abs(gyroHeading) < 1) {
+            return Range.scale(gyroHeading, -15, 15, -.02, .02);
         }
-
 
         /**
          if (Math.abs(gyroHeading) > gyroRange){
@@ -156,34 +156,45 @@ public class Hardware {
 
         double targetAngle = 0;
         if (gyroHeading > 0) {
-            targetAngle = -.8;
+            targetAngle = -.9;
         } else if (gyroHeading < 0) {
-            targetAngle = .8;
+            targetAngle = .9;
         }
         gyroHeading -= targetAngle;
         gyroHeading = Range.clip(gyroHeading, -gyroRange, gyroRange);
 
         double power = Range.scale(gyroHeading, -gyroRange, gyroRange, -1, 1);
 
-        power = Math.pow(Math.abs(power), 1);
+        double acceleration = getAcceleration();
+
+        power = Math.pow(Math.abs(power), 1.05   );
         if (gyroHeading < 0 && power > 0)
             power = -power;
-
 
         return power;
 
     }
-
-    static double scaleRevolutionsPerSecondToPower(double revolutionsPerSecond) {
-        revolutionsPerSecond = Range.clip(revolutionsPerSecond, -2.286, 2.286);
-        return Range.scale(revolutionsPerSecond, -2.286, 2.286, -1, 1);
-    }
+    /*double balanceWithAcceleration() {
+        double power = (balance() * 0.8) + (getAcceleration() * 0.2);
+        power = Range.clip(power, -1, 1);
+        return power;
+    }*/
 
     String formatAngle(AngleUnit angleUnit, double angle) {
         return formatDegrees(AngleUnit.DEGREES.fromUnit(angleUnit, angle));
     }
-
     String formatDegrees(double degrees) {
         return String.format(Locale.getDefault(), "%.1f", AngleUnit.DEGREES.normalize(degrees));
     }
+
+   /*double tau = 0.075;
+    double a = 0.0;
+    double x_angleC = 0;
+
+    double Complementary(double newAngle, double newRate, double looptime) {
+        double dtC = looptime / 1000.0;
+        a = tau / (tau + dtC);
+        x_angleC = a * (x_angleC + newRate * dtC) + (1 - a) * (newAngle);
+        return x_angleC;
+    }*/
 }

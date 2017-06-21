@@ -13,6 +13,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.AngularVelocity;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 
@@ -36,6 +37,7 @@ public class SegwayOpMode extends LinearOpMode {
         }
     }
 
+
     @Override
     public void runOpMode() throws InterruptedException {
         robot = new Hardware(hardwareMap);
@@ -57,18 +59,25 @@ public class SegwayOpMode extends LinearOpMode {
                 counterTime = currentTime;
             }
 
+            //double accelerometerAngle = robot.getAngularVelocity(). * counterTime;
+            double degSec = robot.imu.getAngularVelocity().zRotationRate;
+            double gyroAngle = robot.getPitch();
+            double accelAngle = degSec * counterTime;
+            //double finalAngle = robot.Complementary(gyroAngle, accelAngle, counterTime);
+
 
             telemetry.addData("Milliseconds per cycle", "%1.4f", (1 / cyclesPerSecond) * 1000);
 
-
-            double power = robot.balance();
+            double power = robot.balance(gyroAngle);
 
             robot.leftMotor.setPower(power);
             robot.rightMotor.setPower(power);
 
             double pitch = robot.getPitch() - 90;
             telemetry.addData("Pitch Angle", pitch);
-            telemetry.addData("Power", power);
+            telemetry.addData("Acceleration", "%1.4f", robot.getAcceleration());
+            telemetry.addData("Power", "%1.4f", power);
+            //telemetry.addData("Angle", "%1.4f", finalAngle);
             telemetry.update();
             idle();
         }
