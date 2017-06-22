@@ -29,23 +29,28 @@ public class Hardware {
     final static String RIGHT_MOTOR = "rm";
     final static String IMU = "imu";
 
+    //Segway variables
+    double centerOfGravityAngle = -.15;
+    double degreesToFullPower = 30.0;
+    double overshootAngle = 0;
+    double deadzoneAngle = .5;
+    double exponent = 0.5;
+
     //Motor Directions
     final static DcMotorSimple.Direction LEFT_MOTOR_DIRECTION = DcMotorSimple.Direction.FORWARD;
     final static DcMotorSimple.Direction RIGHT_MOTOR_DIRECTION = DcMotorSimple.Direction.REVERSE;
 
+    //devices
     DcMotor leftMotor;
     DcMotor rightMotor;
     BNO055IMU imu;
-
-    Orientation angles;
-    Acceleration gravity;
 
     Hardware(HardwareMap hardwareMap) {
         initialize(hardwareMap);
         initializeImuParameters();
     }
 
-    //Initialize motors
+    //Initialize devices
     private void initialize(HardwareMap hardwareMap) {
         leftMotor = hardwareMap.dcMotor.get(LEFT_MOTOR);
         rightMotor = hardwareMap.dcMotor.get(RIGHT_MOTOR);
@@ -57,7 +62,7 @@ public class Hardware {
     }
 
     //Initialize IMU
-    public void initializeImuParameters() {
+    private void initializeImuParameters() {
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
         parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
         parameters.accelUnit = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
@@ -95,25 +100,20 @@ public class Hardware {
                 .toAngleUnit(AngleUnit.DEGREES).thirdAngle - 90;
     }
 
-    double angleOffset = -.15;
-    double degreesToFullPower = 30.0;
-    double targetAngle = 0;
-    double zeroRange = .5;
-    double exponent = 0.5;
-
-    void setActiveVariable(int mode, double incrementValue) {
+    //Allows the variables do be incremented while the program is running
+    void incrementVariable(int mode, double incrementValue) {
         switch (mode) {
             case 0:
-                angleOffset += incrementValue;
+                centerOfGravityAngle += incrementValue;
                 break;
             case 1:
                 degreesToFullPower += incrementValue;
                 break;
             case 2:
-                targetAngle += incrementValue;
+                overshootAngle += incrementValue;
                 break;
             case 3:
-                zeroRange += incrementValue;
+                deadzoneAngle += incrementValue;
                 break;
             case 4:
                 exponent += incrementValue;
@@ -122,42 +122,37 @@ public class Hardware {
     }
 
     //Method to balance the robot autonomously
-
     double balance(double gyroHeading) {
-
         //offsets gyro so it can balance correctly
-        gyroHeading += angleOffset;
+        gyroHeading += centerOfGravityAngle;
 
-        //scales the gyro so any number above the scale is classed
-        // as the max and the motors are given full power.
-        //if (Math.abs(gyroHeading) > 40 || Math.abs(gyroHeading) < 1) {
-        //    return Range.scale(gyroHeading, -degreesToFullPower, degreesToFullPower, -.02, .02);
-        //}
-        //this tells the robot what angle to stop sending power to the motors.
+        //this tells the robot at what angle to send full power to the motors.
         double gyroRange = degreesToFullPower;
 
-        //tells the robot when to not send power to the motors,
-        //gives a range of values at which the robot does not move.
-
-        if (Math.abs(gyroHeading) > 30 || Math.abs(gyroHeading) < zeroRange)
+        //If robot is leaning more than 30 degrees or less than the deadzone angle, stop the motors
+        if (Math.abs(gyroHeading) > 30 || Math.abs(gyroHeading) < deadzoneAngle)
             return 0;
 
-        double modifiedTargetAngle = targetAngle;
+        //Modifies the gyro heading so that instead of aiming at 0,
+        //it aims for a angle a bit beyond 0 (overshoot angle)
+        double modifiedOvershootAngle = overshootAngle;
         if (gyroHeading > 0) {
-            modifiedTargetAngle = -targetAngle;
+            modifiedOvershootAngle = -overshootAngle;
         } else if (gyroHeading < 0) {
-            //targetAngle = targetAngle;
+            modifiedOvershootAngle = overshootAngle;
         }
+        gyroHeading -= modifiedOvershootAngle;
 
-        gyroHeading -= modifiedTargetAngle;
+        //Gives power to each motor depending on how the robot is positioned.
+        //Scales the gyro so any number above the scale is classed
+        //as the max and the motors are given full power.
         gyroHeading = Range.clip(gyroHeading, -gyroRange, gyroRange);
-
-        //gives power to each motor depending on how the robot is positioned.
         double power = Range.scale(gyroHeading, -gyroRange, gyroRange, -1, 1);
 
-        //converts power to negative power so the robot can move in both directions
+        //Changes power curve of the power. Numbers less than one mean faster speeds closer to 0,
+        //and vice versa for bigger numbers
         power = Math.pow(Math.abs(power), exponent);
-        if (gyroHeading < 0 && power > 0)
+        if (gyroHeading < 0 && power > 0) // makes sure that the result is negative if the input was negative
             power = -power;
 
         return power;

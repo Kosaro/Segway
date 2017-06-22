@@ -18,8 +18,6 @@ public class SegwayOpMode extends LinearOpMode {
         // INITIALIZE OPMODE
         robot = new Hardware(hardwareMap);
         robot.setMotorRunMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        robot.leftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        robot.rightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         waitForStart();
 
@@ -29,7 +27,7 @@ public class SegwayOpMode extends LinearOpMode {
         int counter = 0;
         double counterTime = getRuntime();
         double cyclesPerSecond = 0;
-        int mode = 0;
+        int selectedVariable = 0;
         boolean lastUp = false;
         boolean lastDown = false;
         boolean lastRight = false;
@@ -57,61 +55,60 @@ public class SegwayOpMode extends LinearOpMode {
 
             //Change values with controller
             double incrementValue = 0;
-            double activeVariable = 0.0;
 
-            switch (mode) {
+            //----------------------------------------------------------------------------------------------
+            // Change Variables with a Controller
+            //----------------------------------------------------------------------------------------------
+            //Left and right dpad to scroll through variables on phone, up and down dpad to increment variables.
+            //To change amount variables are incremented by, change incrementValue below.
+            switch (selectedVariable) {
                 case 0:
-                    activeVariable = robot.angleOffset;
                     incrementValue = .05;
-                    telemetry.addData("Variable", "Angle Offset: " + activeVariable);
+                    telemetry.addData("Variable", "Center of Gravity Angle: " + robot.centerOfGravityAngle);
                     break;
                 case 1:
-                    activeVariable = robot.degreesToFullPower;
                     incrementValue = .5;
-                    telemetry.addData("Variable", "Degrees to Full Power: " + activeVariable);
+                    telemetry.addData("Variable", "Degrees to Full Power: " + robot.degreesToFullPower);
                     break;
                 case 2:
-                    activeVariable = robot.targetAngle;
                     incrementValue = .1;
-                    telemetry.addData("Variable", "Target Angle: " + activeVariable);
+                    telemetry.addData("Variable", "Overshoot Angle: " + robot.overshootAngle);
                     break;
                 case 3:
-                    activeVariable = robot.zeroRange;
                     incrementValue = .1;
-                    telemetry.addData("Variable", "Zero Range: " + activeVariable);
+                    telemetry.addData("Variable", "Deadzone Angle: " + robot.deadzoneAngle);
                     break;
                 case 4:
-                    activeVariable = robot.exponent;
                     incrementValue = .05;
-                    telemetry.addData("Variable", "Exponent: " + activeVariable);
+                    telemetry.addData("Variable", "Exponent: " + robot.exponent);
                     break;
             }
             if (gamepad1.dpad_up != lastUp) {
                 if (gamepad1.dpad_up) {
-                    robot.setActiveVariable(mode, incrementValue);
+                    robot.incrementVariable(selectedVariable, incrementValue);
                 }
                 lastUp = gamepad1.dpad_up;
             }
             if (gamepad1.dpad_down != lastDown) {
                 if (gamepad1.dpad_down) {
-                    robot.setActiveVariable(mode, -incrementValue);
+                    robot.incrementVariable(selectedVariable, -incrementValue);
                 }
                 lastDown = gamepad1.dpad_down;
             }
             if (gamepad1.dpad_right != lastRight) {
                 if (gamepad1.dpad_right) {
-                    mode++;
-                    if (mode > 4) {
-                        mode = 0;
+                    selectedVariable++;
+                    if (selectedVariable > 4) {
+                        selectedVariable = 0;
                     }
                 }
                 lastRight = gamepad1.dpad_right;
             }
             if (gamepad1.dpad_left != lastLeft) {
                 if (gamepad1.dpad_left) {
-                    mode--;
-                    if (mode < 0) {
-                        mode = 4;
+                    selectedVariable--;
+                    if (selectedVariable < 0) {
+                        selectedVariable = 4;
                     }
                 }
                 lastLeft = gamepad1.dpad_left;
