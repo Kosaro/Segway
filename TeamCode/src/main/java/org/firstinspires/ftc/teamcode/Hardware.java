@@ -76,6 +76,7 @@ public class Hardware {
     private void setLeftMotorRunMode(DcMotor.RunMode runMode) {
         leftMotor.setMode(runMode);
     }
+
     private void setRightMotorRunMode(DcMotor.RunMode runMode) {
         rightMotor.setMode(runMode);
     }
@@ -94,37 +95,68 @@ public class Hardware {
                 .toAngleUnit(AngleUnit.DEGREES).thirdAngle - 90;
     }
 
+    double angleOffset = -.15;
+    double degreesToFullPower = 30.0;
+    double targetAngle = 0;
+    double zeroRange = .5;
+    double exponent = 0.5;
+
+    void setActiveVariable(int mode, double incrementValue) {
+        switch (mode) {
+            case 0:
+                angleOffset += incrementValue;
+                break;
+            case 1:
+                degreesToFullPower += incrementValue;
+                break;
+            case 2:
+                targetAngle += incrementValue;
+                break;
+            case 3:
+                zeroRange += incrementValue;
+                break;
+            case 4:
+                exponent += incrementValue;
+                break;
+        }
+    }
+
     //Method to balance the robot autonomously
+
     double balance(double gyroHeading) {
 
         //offsets gyro so it can balance correctly
-        gyroHeading += 0.8;
+        gyroHeading += angleOffset;
 
         //scales the gyro so any number above the scale is classed
         // as the max and the motors are given full power.
-        if (Math.abs(gyroHeading) > 40 || Math.abs(gyroHeading) < 1) {
-            return Range.scale(gyroHeading, -15, 15, -.02, .02);
-        }
+        //if (Math.abs(gyroHeading) > 40 || Math.abs(gyroHeading) < 1) {
+        //    return Range.scale(gyroHeading, -degreesToFullPower, degreesToFullPower, -.02, .02);
+        //}
         //this tells the robot what angle to stop sending power to the motors.
-        double gyroRange = 20;
+        double gyroRange = degreesToFullPower;
 
         //tells the robot when to not send power to the motors,
         //gives a range of values at which the robot does not move.
-        double targetAngle = 0;
+
+        if (Math.abs(gyroHeading) > 30 || Math.abs(gyroHeading) < zeroRange)
+            return 0;
+
+        double modifiedTargetAngle = targetAngle;
         if (gyroHeading > 0) {
-            targetAngle = -.9;
+            modifiedTargetAngle = -targetAngle;
         } else if (gyroHeading < 0) {
-            targetAngle = .9;
+            //targetAngle = targetAngle;
         }
 
-        gyroHeading -= targetAngle;
+        gyroHeading -= modifiedTargetAngle;
         gyroHeading = Range.clip(gyroHeading, -gyroRange, gyroRange);
 
         //gives power to each motor depending on how the robot is positioned.
         double power = Range.scale(gyroHeading, -gyroRange, gyroRange, -1, 1);
 
         //converts power to negative power so the robot can move in both directions
-        power = Math.pow(Math.abs(power), 1.05   );
+        power = Math.pow(Math.abs(power), exponent);
         if (gyroHeading < 0 && power > 0)
             power = -power;
 
