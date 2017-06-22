@@ -1,57 +1,37 @@
 package org.firstinspires.ftc.teamcode;
 
-/**
- * Created by okosa on 6/13/2017.
- */
-
-import android.util.Log;
-
-import com.qualcomm.ftccommon.DbgLog;
-import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.AngularVelocity;
-import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
-import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
+/**
+ * Created by Oscar & Toni on 6/13/2017.
+ */
 
 @TeleOp(name = "Segway")
 //@Disabled
 public class SegwayOpMode extends LinearOpMode {
     Hardware robot;
 
-    enum State {
-        DRIVER_CONTROLLED("Driver Controlled");
-
-
-        private String name;
-
-        State(String name) {
-            this.name = name;
-        }
-
-        public String toString() {
-            return name;
-        }
-    }
-
-
     @Override
     public void runOpMode() throws InterruptedException {
+        // INITIALIZE OPMODE
         robot = new Hardware(hardwareMap);
         robot.setMotorRunMode(DcMotor.RunMode.RUN_USING_ENCODER);
-
 
         waitForStart();
 
         robot.resetEncoders();
 
+        //DECLARE VARIABLES
         int counter = 0;
         double counterTime = getRuntime();
         double cyclesPerSecond = 0;
+
+        //START OPMODE
         while (opModeIsActive()) {
+
+            //Calculate the time for current loop
             double currentTime = getRuntime();
             counter++;
             if (currentTime > counterTime + .5) {
@@ -59,25 +39,19 @@ public class SegwayOpMode extends LinearOpMode {
                 counterTime = currentTime;
             }
 
-            //double accelerometerAngle = robot.getAngularVelocity(). * counterTime;
-            double degSec = robot.imu.getAngularVelocity().zRotationRate;
-            double gyroAngle = robot.getPitch();
-            double accelAngle = degSec * counterTime;
-            //double finalAngle = robot.Complementary(gyroAngle, accelAngle, counterTime);
+            //Calculate power to give to the motors
+            double msPerCycle = (1/ cyclesPerSecond) * 1000;
+            double pitch = robot.getPitch() - 90;
+            double power = robot.balance(pitch);
 
-
-            telemetry.addData("Milliseconds per cycle", "%1.4f", (1 / cyclesPerSecond) * 1000);
-
-            double power = robot.balance(gyroAngle);
-
+            //Gives power to the motors
             robot.leftMotor.setPower(power);
             robot.rightMotor.setPower(power);
 
-            double pitch = robot.getPitch() - 90;
-            telemetry.addData("Pitch Angle", pitch);
-            telemetry.addData("Acceleration", "%1.4f", robot.getAcceleration());
+            //Displays the information on the screen
+            telemetry.addData("Milliseconds per cycle", "%1.4f", msPerCycle);
+            telemetry.addData("Pitch Angle", "%1.4f", pitch);
             telemetry.addData("Power", "%1.4f", power);
-            //telemetry.addData("Angle", "%1.4f", finalAngle);
             telemetry.update();
             idle();
         }
