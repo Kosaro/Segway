@@ -41,7 +41,7 @@ public class SegwayOpMode extends LinearOpMode {
 
             //Calculate power to give to the motors
             double msPerCycle = (1/ cyclesPerSecond) * 1000;
-            double pitch = robot.getPitch() - 90;
+            double pitch = robot.getPitch();
             double power = robot.balance(pitch);
 
             //Gives power to the motors

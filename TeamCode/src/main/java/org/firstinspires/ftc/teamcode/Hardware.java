@@ -91,7 +91,7 @@ public class Hardware {
     //Find angle from gyro
     double getPitch() {
         return imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES)
-                .toAngleUnit(AngleUnit.DEGREES).thirdAngle;
+                .toAngleUnit(AngleUnit.DEGREES).thirdAngle - 90;
     }
 
     //Method to balance the robot autonomously
