@@ -31,25 +31,25 @@ public class SegwayOpMode extends LinearOpMode {
         //START OPMODE
         while (opModeIsActive()) {
 
-            //Calculate the time for current loop
+            //Calculate the average loop duration
             double currentTime = getRuntime();
             counter++;
             if (currentTime > counterTime + .5) {
                 cyclesPerSecond = counter / (currentTime - counterTime);
                 counterTime = currentTime;
             }
+            double msPerCycle = (1/ cyclesPerSecond) * 1000000;
 
             //Calculate power to give to the motors
-            double msPerCycle = (1/ cyclesPerSecond) * 1000;
             double pitch = robot.getPitch();
             double power = robot.balance(pitch);
 
-            //Gives power to the motors
+            //Give power to the motors
             robot.leftMotor.setPower(power);
             robot.rightMotor.setPower(power);
 
             //Displays the information on the screen
-            telemetry.addData("Milliseconds per cycle", "%1.4f", msPerCycle);
+            telemetry.addData("Microseconds per cycle", "%1.4f", msPerCycle);
             telemetry.addData("Pitch Angle", "%1.4f", pitch);
             telemetry.addData("Power", "%1.4f", power);
             telemetry.update();
